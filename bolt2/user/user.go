@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/boltdb/bolt"
 	helper_reset_password "github.com/portainer/helper-reset-password"
-	"github.com/portainer/helper-reset-password/bolt/internal"
+	"github.com/portainer/helper-reset-password/bolt2/internal"
 )
 
 const (

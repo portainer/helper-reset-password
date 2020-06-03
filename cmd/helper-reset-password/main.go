@@ -2,19 +2,19 @@ package main
 
 import (
 	helper_reset_password "github.com/portainer/helper-reset-password"
-	"github.com/portainer/helper-reset-password/bolt"
+	"github.com/portainer/helper-reset-password/bcrypt"
+	portainer "github.com/portainer/portainer/api"
+	"github.com/portainer/portainer/api/bolt"
+	"github.com/portainer/portainer/api/filesystem"
+
 	"github.com/portainer/helper-reset-password/password"
 	"log"
-	"os"
 )
 
 func main() {
-	_, err := os.Stat(helper_reset_password.DatabaseFilePath)
-	if err != nil {
-		log.Fatalf("Unable to locate database file at %s, err: %s", helper_reset_password.DatabaseFilePath, err)
-	}
+	fileService := initFileService(helper_reset_password.DataStorePath)
 
-	store, err := createBoltStore()
+	store, err := createBoltStore(helper_reset_password.DataStorePath, fileService)
 	if err != nil {
 		log.Fatalf("Unable to create datastore object, err: %s", err)
 	}
@@ -25,17 +25,22 @@ func main() {
 	}
 	defer store.Close()
 
-	user, err := store.User().User(1)
+	user, err := store.User().User(portainer.UserID(1))
 	if err != nil {
 		log.Fatalf("Unable to retrieve user with ID 1, err: %s", err)
 	}
 
-	newPassword, err := password.GeneratePassword()
+	newPassword, err := password.GeneratePlainTextPassword()
 	if err != nil {
 		log.Fatalf("An error occured during password generation, err: %s", err)
 	}
 
-	user.Password = newPassword
+	hash, err := bcrypt.HashPassword(newPassword)
+	if err != nil {
+		log.Fatalf("Unable to hash password, err: %s", err)
+	}
+
+	user.Password = hash
 
 	err = store.User().UpdateUser(user.ID, user)
 	if err != nil {
@@ -43,9 +48,17 @@ func main() {
 	}
 
 	log.Printf("Password succesfully updated for user: %s", user.Username)
-	log.Printf("Use the following password to login: %s", user.Password)
+	log.Printf("Use the following password to login: %s", newPassword)
 }
 
-func createBoltStore() (helper_reset_password.DataStore, error) {
-	return bolt.NewStore(helper_reset_password.DatabaseFilePath)
+func createBoltStore(dataStorePath string, fileService portainer.FileService) (portainer.DataStore, error) {
+	return bolt.NewStore(dataStorePath, fileService)
+}
+
+func initFileService(dataStorePath string) portainer.FileService {
+	fileService, err := filesystem.NewService(dataStorePath, "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return fileService
 }

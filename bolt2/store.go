@@ -1,9 +1,9 @@
-package bolt
+package bolt2
 
 import (
 	"github.com/boltdb/bolt"
 	helper_reset_password "github.com/portainer/helper-reset-password"
-	"github.com/portainer/helper-reset-password/bolt/user"
+	"github.com/portainer/helper-reset-password/bolt2/user"
 	"time"
 )
 

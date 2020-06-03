@@ -9,4 +9,4 @@ image:
 	docker build -t portainer/helper-reset-password .
 
 compile:
-	go build -o bin/helper-reset-password $(MAIN)
+	CGO_ENABLED=0 go build -o bin/helper-reset-password $(MAIN)
