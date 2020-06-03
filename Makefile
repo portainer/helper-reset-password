@@ -1,4 +1,5 @@
 MAIN=cmd/helper-reset-password/main.go
+BINARY=helper-reset-password
 
 build: compile image
 
@@ -10,3 +11,6 @@ image:
 
 compile:
 	CGO_ENABLED=0 go build -o bin/helper-reset-password $(MAIN)
+
+clean:
+	rm -rf bin/$(BINARY)
