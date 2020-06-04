@@ -5,12 +5,11 @@ This helper container is designed to update the password of the original adminis
 **Note for Portainer < 2.0**: it will only reset the password associated to the original administrator account (UserID == 1). If you removed this
 account, this helper won't be of any help.
 
-How to use it:
+# Usage
+
+## Portainer running as a container
 
 ```
-For Portainer running as a CONTAINER
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 # stop the existing Portainer container
 docker container stop portainer
 
@@ -22,10 +21,11 @@ docker run --rm -v portainer_data:/data portainer/helper-reset-password
 # restart portainer and use the password above to login
 docker container start portainer
 
+```
 
-For Portainer running as a Stack/Service
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Portainer running as a stack/service
 
+```
 # scale down to zero the existing Portainer service
 docker service scale portainer_portainer=0
 
@@ -36,7 +36,4 @@ docker run --rm -v portainer_portainer_data:/data portainer/helper-reset-passwor
 
 # scale back to one the existing Portainer service and use the password above to login
 docker service scale portainer_portainer=1
-
 ```
-
-
