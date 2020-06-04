@@ -20,7 +20,6 @@ docker run --rm -v portainer_data:/data portainer/helper-reset-password
 
 # restart portainer and use the password above to login
 docker container start portainer
-```
 
 for Portainer running as a Stack/Service
 docker service scale portainer_portainer=0
@@ -33,6 +32,6 @@ docker run --rm -v portainer_portainer_data:/data portainer/helper-reset-passwor
 # restart portainer and use the password above to login
 docker service scale portainer_portainer=1
 
-
+```
 
 
