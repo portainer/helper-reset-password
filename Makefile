@@ -38,9 +38,12 @@ image-linux-arm64:
 	docker build -f Dockerfile -t $(DOCKER_IMAGE):linux-arm64 .; \
 	docker push $(DOCKER_IMAGE):linux-arm64
 
+# Requires a properly configured rebase-docker-image tool
 image-windows-amd64:
 	docker build -f Dockerfile.windows -t $(DOCKER_IMAGE):windows-amd64 .; \
-	docker push $(DOCKER_IMAGE):windows-amd64
+	docker push $(DOCKER_IMAGE):windows-amd64; \
+	rebase-docker-image $(DOCKER_IMAGE):windows-amd64 -t $(DOCKER_IMAGE):windows1809-amd64 -b "mcr.microsoft.com/windows/nanoserver:1809"; \
+    rebase-docker-image $(DOCKER_IMAGE):windows-amd64 -t $(DOCKER_IMAGE):windows1903-amd64 -b "mcr.microsoft.com/windows/nanoserver:1903"
 
 clean:
 	rm -rf bin/$(BINARY)*
