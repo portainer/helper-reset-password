@@ -49,7 +49,7 @@ clean:
 	rm -rf bin/$(BINARY)*
 
 manifest:
-	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-amd64 $(DOCKER_IMAGE):linux-arm $(DOCKER_IMAGE):linux-arm64 $(DOCKER_IMAGE):windows1809-amd64 $(DOCKER_IMAGE):windows1903-amd64 \
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-amd64 $(DOCKER_IMAGE):linux-arm $(DOCKER_IMAGE):linux-arm64 $(DOCKER_IMAGE):windows1809-amd64 $(DOCKER_IMAGE):windows1903-amd64; \
     DOCKER_CLI_EXPERIMENTAL=enabled docker manifest annotate $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-arm --os linux --arch arm; \
     DOCKER_CLI_EXPERIMENTAL=enabled docker manifest annotate $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-arm64 --os linux --arch arm64; \
     DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push -p $(DOCKER_IMAGE):latest
