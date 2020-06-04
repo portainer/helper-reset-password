@@ -8,21 +8,19 @@ import (
 	"github.com/portainer/portainer/api/bolt"
 	"github.com/portainer/portainer/api/filesystem"
 	"log"
+	"os"
 	"path"
 )
 
 func main() {
-	fileService := initFileService(helper_reset_password.DataStorePath)
-
-	found, err := fileService.FileExists(path.Join(helper_reset_password.DataStorePath, "portainer.db"))
-	if err != nil {
+	if _, err := os.Stat(path.Join(helper_reset_password.DataStorePath, "portainer.db")); err != nil {
+		if os.IsNotExist(err) {
+			log.Fatalln("Unable to locate /data/portainer.db on disk")
+		}
 		log.Fatalf("Unable to verify database file existence, err: %s", err)
 	}
 
-	if !found {
-		log.Fatalln("Unable to locate /data/portainer.db on disk")
-	}
-
+	fileService := initFileService(helper_reset_password.DataStorePath)
 	store, err := createBoltStore(helper_reset_password.DataStorePath, fileService)
 	if err != nil {
 		log.Fatalf("Unable to create datastore object, err: %s", err)
