@@ -1,7 +1,7 @@
 FROM scratch
 
-COPY bin /
+WORKDIR /app
 
-WORKDIR /
+COPY bin /app
 
-ENTRYPOINT ["/helper-reset-password"]
+ENTRYPOINT ["/app/helper-reset-password"]

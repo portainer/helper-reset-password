@@ -1,0 +1,9 @@
+FROM microsoft/nanoserver:sac2016
+
+USER ContainerAdministrator
+
+WORKDIR /app
+
+COPY bin /app
+
+ENTRYPOINT ["C:/app/helper-reset-password.exe"]
