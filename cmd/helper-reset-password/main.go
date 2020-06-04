@@ -3,16 +3,25 @@ package main
 import (
 	helper_reset_password "github.com/portainer/helper-reset-password"
 	"github.com/portainer/helper-reset-password/bcrypt"
+	"github.com/portainer/helper-reset-password/password"
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/bolt"
 	"github.com/portainer/portainer/api/filesystem"
-
-	"github.com/portainer/helper-reset-password/password"
 	"log"
+	"path"
 )
 
 func main() {
 	fileService := initFileService(helper_reset_password.DataStorePath)
+
+	found, err := fileService.FileExists(path.Join(helper_reset_password.DataStorePath, "portainer.db"))
+	if err != nil {
+		log.Fatalf("Unable to verify database file existence, err: %s", err)
+	}
+
+	if !found {
+		log.Fatalln("Unable to locate /data/portainer.db on disk")
+	}
 
 	store, err := createBoltStore(helper_reset_password.DataStorePath, fileService)
 	if err != nil {
