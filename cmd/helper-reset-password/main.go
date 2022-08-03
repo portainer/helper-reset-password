@@ -1,15 +1,17 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"path"
+
 	helper_reset_password "github.com/portainer/helper-reset-password"
 	"github.com/portainer/helper-reset-password/bcrypt"
 	"github.com/portainer/helper-reset-password/password"
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/bolt"
 	"github.com/portainer/portainer/api/filesystem"
-	"log"
-	"os"
-	"path"
 )
 
 func main() {
@@ -32,9 +34,26 @@ func main() {
 	}
 	defer store.Close()
 
+	createAdmin := false
+	adminName := "admin"
+
 	user, err := store.User().User(portainer.UserID(1))
 	if err != nil {
-		log.Fatalf("Unable to retrieve user with ID 1, err: %s", err)
+		log.Printf("[WARN] Unable to retrieve user with ID 1, will try to create, err: %s", err)
+
+		createAdmin = true
+
+		adminUser, err := store.User().UserByUsername(adminName)
+
+		if err != nil {
+			log.Fatalf("Unable to query user %s from database, err: %s", adminName, err)
+		} else if adminUser != nil {
+			adminName, err = password.GenerateRandomString()
+			if err != nil {
+				log.Fatalf("Unable to generate random admin user name, err: %s", err)
+			}
+			adminName = fmt.Sprintf("admin-%s", adminName)
+		}
 	}
 
 	newPassword, err := password.GeneratePlainTextPassword()
@@ -47,14 +66,27 @@ func main() {
 		log.Fatalf("Unable to hash password, err: %s", err)
 	}
 
-	user.Password = hash
+	if createAdmin {
+		if err := store.User().CreateUser(&portainer.User{
+			Username: adminName,
+			Role:     portainer.AdministratorRole,
+			Password: hash,
+		}); err != nil {
+			log.Fatalf("Unable to create admin user %s inside the database, err: %s", user.Username, err)
+		}
 
-	err = store.User().UpdateUser(user.ID, user)
-	if err != nil {
-		log.Fatalf("Unable to persist password changes inside the database, err: %s", err)
+		log.Printf("Admin user %s successfully created", user.Username)
+	} else {
+		user.Password = hash
+
+		err = store.User().UpdateUser(user.ID, user)
+		if err != nil {
+			log.Fatalf("Unable to persist password changes inside the database, err: %s", err)
+		}
+
+		log.Printf("Password succesfully updated for user: %s", user.Username)
 	}
 
-	log.Printf("Password succesfully updated for user: %s", user.Username)
 	log.Printf("Use the following password to login: %s", newPassword)
 }
 

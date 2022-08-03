@@ -2,8 +2,7 @@
 
 This helper container is designed to update the password of the original administrator account of a Portainer instance.
 
-**Note for Portainer < 2.0**: it will only reset the password associated to the original administrator account (UserID == 1). If you removed this
-account, this helper won't be of any help.
+**Note**: it is designed to reset the password associated to the original administrator account (UserID == 1). If the account is removed, the helper will try to create a user named admin with UserID = 1. If the name admin is already taken, the helper will try to use "admin-" + a random string.
 
 # Usage
 
