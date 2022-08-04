@@ -11,7 +11,7 @@ release-linux: release-linux-amd64 release-linux-arm release-linux-arm64
 release-windows: release-windows-amd64
 release: release-linux release-windows manifest
 
-ALL_OSVERSIONS.windows := 1809 1903 1909 2004 ltsc2022
+ALL_OSVERSIONS.windows := 1809 1903 1909 2004 20H2 ltsc2022
 
 run:
 	go run $(MAIN)
@@ -52,7 +52,7 @@ clean:
 
 manifest:
 	manifest_image_folder=`echo "docker.io/$(DOCKER_IMAGE)" | sed "s|/|_|g" | sed "s/:/-/"`; \
-	docker -D manifest create "$(DOCKER_IMAGE):latest" \
+	docker -D manifest create $(DOCKER_IMAGE):latest \
 		$(DOCKER_IMAGE):linux-amd64 \
 		$(DOCKER_IMAGE):linux-arm \
 		$(DOCKER_IMAGE):linux-arm64 \
@@ -61,8 +61,8 @@ manifest:
 		$(DOCKER_IMAGE):windows2004-amd64 \
 		$(DOCKER_IMAGE):windows20H2-amd64 \
 		$(DOCKER_IMAGE):windowsltsc2022-amd64 ; \
-	docker manifest annotate "$(DOCKER_IMAGE):latest" "$(DOCKER_IMAGE):linux-arm" --os linux --arch arm ; \
-	docker manifest annotate "$(DOCKER_IMAGE):latest" "$(DOCKER_IMAGE):linux-arm64" --os linux --arch arm64 ; \
+	docker manifest annotate $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-arm --os linux --arch arm ; \
+	docker manifest annotate $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-arm64 --os linux --arch arm64 ; \
 	for osversion in $(ALL_OSVERSIONS.windows); do \
 		BASEIMAGE=mcr.microsoft.com/windows/nanoserver:$${osversion} ; \
 		full_version=`docker manifest inspect $(BASEIMAGE) | jq -r '.manifests[0].platform["os.version"]'` ; \
