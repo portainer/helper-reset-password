@@ -38,18 +38,26 @@ image-linux-arm64:
 	docker build -f Dockerfile -t $(DOCKER_IMAGE):linux-arm64 .; \
 	docker push $(DOCKER_IMAGE):linux-arm64
 
-# Requires a properly configured rebase-docker-image tool
+# Use buildx to build Windows images
 image-windows-amd64:
-	docker build -f Dockerfile.windows -t $(DOCKER_IMAGE):windows-amd64 .; \
-	docker push $(DOCKER_IMAGE):windows-amd64; \
-	rebase-docker-image $(DOCKER_IMAGE):windows-amd64 -t $(DOCKER_IMAGE):windows1809-amd64 -b "mcr.microsoft.com/windows/nanoserver:1809"; \
-    rebase-docker-image $(DOCKER_IMAGE):windows-amd64 -t $(DOCKER_IMAGE):windows1903-amd64 -b "mcr.microsoft.com/windows/nanoserver:1903"
+	all_windows_osversions=(1809 1909 2004 20H2 ltsc2022); \
+	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx create --name portainerci --use --driver-opt image=moby/buildkit:buildx-stable-1; \
+	for osversion in $${all_windows_osversions[@]}; do \
+		docker buildx build --output=type=registry --platform windows/amd64 -t $(DOCKER_IMAGE):windows$${osversion}-amd64 --build-arg OSVERSION=$${osversion} -f ./Dockerfile.windows . ; \
+	done
 
 clean:
 	rm -rf bin/$(BINARY)*
 
 manifest:
-	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-amd64 $(DOCKER_IMAGE):linux-arm $(DOCKER_IMAGE):linux-arm64 $(DOCKER_IMAGE):windows1809-amd64 $(DOCKER_IMAGE):windows1903-amd64; \
-    DOCKER_CLI_EXPERIMENTAL=enabled docker manifest annotate $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-arm --os linux --arch arm; \
-    DOCKER_CLI_EXPERIMENTAL=enabled docker manifest annotate $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-arm64 --os linux --arch arm64; \
-    DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push -p $(DOCKER_IMAGE):latest
+	all_windows_osversions=(1809 1909 2004 20H2 ltsc2022); \
+	manifest_image_folder=`echo "docker.io/$(DOCKER_IMAGE)" | sed "s|/|_|g" | sed "s/:/-/"`; \
+	docker -D manifest create "$(DOCKER_IMAGE):latest" \
+  "$(DOCKER_IMAGE):linux-amd64" \
+  "$(DOCKER_IMAGE):linux-arm" \
+  "$(DOCKER_IMAGE):linux-arm64" \
+  "$(DOCKER_IMAGE):windows1809-amd64" \
+  "$(DOCKER_IMAGE):windows1909-amd64" \
+  "$(DOCKER_IMAGE):windows2004-amd64" \
+  "$(DOCKER_IMAGE):windows20H2-amd64" \
+  "$(DOCKER_IMAGE):windowsltsc2022-amd64"
