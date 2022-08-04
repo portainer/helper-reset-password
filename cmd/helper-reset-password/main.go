@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("Unable to verify database file existence, err: %s", err)
 	}
 
-	// db init bolt store from teh db file
+	// db init bolt store from the db file
 	// note: encrypted db isn't supported ATM
 	fileService := initFileService(helper_reset_password.DataStorePath)
 	store, err := createBoltStore(helper_reset_password.DataStorePath, fileService)
@@ -87,7 +87,7 @@ func main() {
 			log.Fatalf("Unable to create admin user %s inside the database, err: %s", adminName, err)
 		}
 
-		// try to make sure the bolt db user busket sequence is > 1, 10 attempts
+		// try to make sure the bolt db user bucket sequence is > 1, 10 attempts
 		seq := store.GetConnection().GetNextIdentifier(store.User().BucketName())
 		for i := 1; i <= 10 && seq <= 1; i++ {
 			seq = store.GetConnection().GetNextIdentifier(store.User().BucketName())
