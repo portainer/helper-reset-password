@@ -11,6 +11,8 @@ release-linux: release-linux-amd64 release-linux-arm release-linux-arm64
 release-windows: release-windows-amd64
 release: release-linux release-windows manifest
 
+ALL_OSVERSIONS.windows := 1809 1903 1909 2004 ltsc2022
+
 run:
 	go run $(MAIN)
 
@@ -40,9 +42,8 @@ image-linux-arm64:
 
 # Use buildx to build Windows images
 image-windows-amd64:
-	all_windows_osversions=(1809 1909 2004 20H2 ltsc2022) ; \
 	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx create --name portainerci --use --driver-opt image=moby/buildkit:buildx-stable-1 ; \
-	for osversion in $${all_windows_osversions[@]}; do \
+	for osversion in $(ALL_OSVERSIONS.windows); do \
 		docker buildx build --output=type=registry --platform windows/amd64 -t $(DOCKER_IMAGE):windows$${osversion}-amd64 --build-arg OSVERSION=$${osversion} -f ./Dockerfile.windows . ; \
 	done
 
@@ -50,7 +51,6 @@ clean:
 	rm -rf bin/$(BINARY)*
 
 manifest:
-	all_windows_osversions=(1809 1909 2004 20H2 ltsc2022); \
 	manifest_image_folder=`echo "docker.io/$(DOCKER_IMAGE)" | sed "s|/|_|g" | sed "s/:/-/"`; \
 	docker -D manifest create "$(DOCKER_IMAGE):latest" \
 		$(DOCKER_IMAGE):linux-amd64 \
@@ -63,7 +63,7 @@ manifest:
 		$(DOCKER_IMAGE):windowsltsc2022-amd64 ; \
 	docker manifest annotate "$(DOCKER_IMAGE):latest" "$(DOCKER_IMAGE):linux-arm" --os linux --arch arm ; \
 	docker manifest annotate "$(DOCKER_IMAGE):latest" "$(DOCKER_IMAGE):linux-arm64" --os linux --arch arm64 ; \
-	for osversion in $${all_windows_osversions[@]}; do \
+	for osversion in $(ALL_OSVERSIONS.windows); do \
 		BASEIMAGE=mcr.microsoft.com/windows/nanoserver:$${osversion} ; \
 		full_version=`docker manifest inspect $(BASEIMAGE) | jq -r '.manifests[0].platform["os.version"]'` ; \
 		sed -i -r "s/(\"os\"\:\"windows\")/\0,\"os.version\":\"$${full_version}\"/" "$${DOCKER_CONFIG}/manifests/$${manifest_image_folder}/$${manifest_image_folder}-windows$${osversion}-amd64" ; \
