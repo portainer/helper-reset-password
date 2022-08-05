@@ -1,7 +1,7 @@
 MAIN=cmd/helper-reset-password/main.go
 BINARY=helper-reset-password
 DOCKER_IMAGE=portainer/helper-reset-password
-DOCKER_CONFIG=$$(echo ${HOME}/.docker)
+# DOCKER_CONFIG=$$(echo ${HOME}/.docker)
 ALL_OSVERSIONS.windows := 1809 1903 1909 2004 20H2 ltsc2022
 
 release-linux-amd64: build-linux-amd64 image-linux-amd64
