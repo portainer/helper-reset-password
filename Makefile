@@ -1,8 +1,8 @@
 MAIN=cmd/helper-reset-password/main.go
 BINARY=helper-reset-password
 DOCKER_IMAGE=portainer/helper-reset-password
-# DOCKER_CONFIG=$$(echo ${HOME}/.docker)
-ALL_OSVERSIONS.windows := 1809 1903 1909 2004 20H2 ltsc2022
+DOCKER_CONFIG=$$(echo ${HOME}/.docker)
+ALL_OSVERSIONS.windows := 1809 1909 2004 20H2 ltsc2022
 
 release-linux-amd64: build-linux-amd64 image-linux-amd64
 release-linux-arm: build-linux-arm image-linux-arm
@@ -65,7 +65,7 @@ manifest:
 	docker manifest annotate $(DOCKER_IMAGE):latest $(DOCKER_IMAGE):linux-arm64 --os linux --arch arm64 ; \
 	for osversion in $(ALL_OSVERSIONS.windows); do \
 		BASEIMAGE=mcr.microsoft.com/windows/nanoserver:$${osversion} ; \
-		full_version=`docker manifest inspect $(BASEIMAGE) | jq -r '.manifests[0].platform["os.version"]'` ; \
+		full_version=`docker manifest inspect $${BASEIMAGE} | jq -r '.manifests[0].platform["os.version"]'`; \
 		sed -i -r "s/(\"os\"\:\"windows\")/\0,\"os.version\":\"$${full_version}\"/" "$(DOCKER_CONFIG)/manifests/$${manifest_image_folder}-latest/$${manifest_image_folder}-windows$${osversion}-amd64" ; \
 	done
 
