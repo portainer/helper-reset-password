@@ -38,7 +38,7 @@ image-linux-arm64:
 
 # Use buildx to build Windows images
 image-windows-amd64:
-	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx create --name portainerci --use --driver-opt image=moby/buildkit:buildx-stable-1 ; \
+	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx create --name portainerci --use --driver-opt image=moby/buildkit:v0.10.6 ; \
 	for osversion in $(ALL_OSVERSIONS.windows); do \
 		docker buildx build --output=type=registry --platform windows/amd64 -t $(DOCKER_IMAGE):windows$${osversion}-amd64 --build-arg OSVERSION=$${osversion} -f ./Dockerfile.windows . ; \
 	done
