@@ -7,9 +7,9 @@ import (
 	"path"
 
 	helper_reset_password "github.com/portainer/helper-reset-password"
-	"github.com/portainer/helper-reset-password/bcrypt"
 	"github.com/portainer/helper-reset-password/password"
 	portainer "github.com/portainer/portainer/api"
+	"github.com/portainer/portainer/api/crypto"
 	"github.com/portainer/portainer/api/database"
 	"github.com/portainer/portainer/api/datastore"
 	"github.com/portainer/portainer/api/filesystem"
@@ -28,6 +28,10 @@ func main() {
 	// note: encrypted db isn't supported ATM
 	fileService := initFileService(helper_reset_password.DataStorePath)
 	store, err := createBoltStore(helper_reset_password.DataStorePath, fileService)
+	if err != nil {
+		log.Fatalf("Unable to create boltdb store, err: %v", err)
+	}
+
 	isNew, err := store.Open()
 	if err != nil {
 		log.Fatalf("Unable to open the database, err: %v", err)
@@ -36,9 +40,20 @@ func main() {
 	}
 	defer store.Close()
 
+	cryptoService := crypto.Service{}
+
 	createAdmin := false
 	// default user1 name
 	adminName := "admin"
+
+	settings, err := store.Settings().Settings()
+	if err != nil {
+		log.Fatalf("Unable to retrieve settings, err: %s", err)
+	}
+
+	if settings.IsDDExtention {
+		log.Fatalf("Database from a Docker Desktop Portainer instance detected - exiting without resetting")
+	}
 
 	// try to find user1
 	user, err := store.User().User(portainer.UserID(1))
@@ -49,7 +64,7 @@ func main() {
 		createAdmin = true
 
 		// if there is already a user named admin, will randomize the name with suffix (admin-asdkjfh123)
-		adminUser, err := store.User().UserByUsername(adminName)
+		adminUser, _ := store.User().UserByUsername(adminName)
 
 		if adminUser != nil {
 			adminName, err = password.GenerateRandomString()
@@ -60,6 +75,11 @@ func main() {
 		}
 	}
 
+	// If password is used for docker extension. It won't return an error if passwords are same.
+	if err := cryptoService.CompareHashAndData(user.Password, "K7yJPP5qNK4hf1QsRnfV"); err == nil {
+		log.Fatalf("Database from a Docker Desktop Portainer instance detected - exiting without resetting")
+	}
+
 	// generate the new password
 	newPassword, err := password.GeneratePlainTextPassword()
 	if err != nil {
@@ -67,7 +87,7 @@ func main() {
 	}
 
 	// hash the password
-	hash, err := bcrypt.HashPassword(newPassword)
+	hash, err := cryptoService.Hash(newPassword)
 	if err != nil {
 		log.Fatalf("Unable to hash password, err: %s", err)
 	}
@@ -107,7 +127,7 @@ func main() {
 			log.Fatalf("Unable to persist password changes inside the database, err: %s", err)
 		}
 
-		log.Printf("Password succesfully updated for user: %s", user.Username)
+		log.Printf("Password successfully updated for user: %s", user.Username)
 	}
 
 	log.Printf("Use the following password to login: %s", newPassword)
