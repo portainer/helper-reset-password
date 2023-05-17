@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/containerd/containerd v1.6.18 // indirect
-	github.com/portainer/portainer/api v0.0.0-20230226132524-e0481f69b18a
+	github.com/portainer/portainer/api v0.0.0-20230517023146-83551201fbf8
 	github.com/sethvargo/go-password v0.1.3
 )
 

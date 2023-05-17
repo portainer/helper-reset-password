@@ -51,7 +51,7 @@ func main() {
 		log.Fatalf("Unable to retrieve settings, err: %s", err)
 	}
 
-	if settings.IsDDExtention {
+	if settings.IsDockerDesktopExtention {
 		log.Fatalf("Database from a Docker Desktop Portainer instance detected - exiting without resetting")
 	}
 
