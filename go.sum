@@ -931,6 +931,8 @@ github.com/portainer/libhttp v0.0.0-20230206214615-dabd58de9f44 h1:4LYprPd3TsYjH
 github.com/portainer/libhttp v0.0.0-20230206214615-dabd58de9f44/go.mod h1:H49JLiywwLt2rrJVroafEWy8fIs0i7mThAThK40sbb8=
 github.com/portainer/portainer/api v0.0.0-20230517023146-83551201fbf8 h1:xZNWKfmq/DD3gDhWOi1iyoCgpFX9FzgQghGsUN9fXyU=
 github.com/portainer/portainer/api v0.0.0-20230517023146-83551201fbf8/go.mod h1:fXeGlU14gct8NYGjTPAIVhdRTCETYU7hLMgH7muKz7w=
+github.com/portainer/portainer/api v0.0.0-20230517222107-14fa60f6e6b4 h1:c+8bVqJyTDY3I5fvW9Fv9M9078z1C8n4s8qJtkju4yo=
+github.com/portainer/portainer/api v0.0.0-20230517222107-14fa60f6e6b4/go.mod h1:fXeGlU14gct8NYGjTPAIVhdRTCETYU7hLMgH7muKz7w=
 github.com/portainer/portainer/pkg/featureflags v0.0.0-20230209201943-d73622ed9cd4 h1:gnXwaF0GnFUIlynRq994WFOtqOULTKZks4aSWuonlhA=
 github.com/portainer/portainer/pkg/featureflags v0.0.0-20230209201943-d73622ed9cd4/go.mod h1:T37rFZMg+PhRhT9n/z9cLSj9khJSdwHj3/Ac5PZQgKI=
 github.com/portainer/portainer/pkg/libhelm v0.0.0-20230410231754-96474a42eacb/go.mod h1:cFRD6PvOwpd2pf/O1r/IMKl+ZB12pWfo/Evleh3aCfM=
