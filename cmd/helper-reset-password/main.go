@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -15,7 +17,31 @@ import (
 	"github.com/portainer/portainer/api/filesystem"
 )
 
+func parseCommandLineArguments() (string, string, error) {
+	var (
+		password     string
+		passwordHash string
+		err          error
+	)
+
+	flag.StringVar(&password, "password", "", "The new admin password")
+	flag.StringVar(&passwordHash, "password-hash", "", "The new admin password hash")
+
+	flag.Parse()
+
+	if password != "" && passwordHash != "" {
+		err = errors.New("You cannot use the 'password' and 'password-hash' arguments at the same time")
+	}
+
+	return password, passwordHash, err
+}
+
 func main() {
+	// parse CLI arguments
+	cliPassword, cliPasswordHash, err := parseCommandLineArguments()
+	if err != nil {
+		log.Fatalf("Invalid CLI usage! err: %s", err)
+	}
 	// try to locate the db file
 	if _, err := os.Stat(path.Join(helper_reset_password.DataStorePath, "portainer.db")); err != nil {
 		if os.IsNotExist(err) {
@@ -80,16 +106,28 @@ func main() {
 		log.Fatalf("Database from a Docker Desktop Portainer instance detected - exiting without resetting")
 	}
 
-	// generate the new password
-	newPassword, err := password.GeneratePlainTextPassword()
-	if err != nil {
-		log.Fatalf("An error occured during password generation, err: %s", err)
+	// generate the new password if not given via CLI
+	var newPassword string
+	if cliPassword == "" {
+		newPassword, err = password.GeneratePlainTextPassword()
+		if err != nil {
+			log.Fatalf("An error occurred during password generation, err: %s", err)
+		}
+	} else {
+		log.Printf("Using password provided via CLI")
+		newPassword = cliPassword
 	}
 
-	// hash the password
-	hash, err := cryptoService.Hash(newPassword)
-	if err != nil {
-		log.Fatalf("Unable to hash password, err: %s", err)
+	// hash the password if not given via CLI
+	var hash string
+	if cliPasswordHash == "" {
+		hash, err = cryptoService.Hash(newPassword)
+		if err != nil {
+			log.Fatalf("Unable to hash password, err: %s", err)
+		}
+	} else {
+		log.Printf("Using password hash provided via CLI")
+		hash = cliPasswordHash
 	}
 
 	if createAdmin {
@@ -130,7 +168,11 @@ func main() {
 		log.Printf("Password successfully updated for user: %s", user.Username)
 	}
 
-	log.Printf("Use the following password to login: %s", newPassword)
+	if cliPasswordHash == "" {
+		log.Printf("Use the following password to login: %s", newPassword)
+	} else {
+		log.Printf("Use the password from your provided hash to login")
+	}
 }
 
 func createBoltStore(dataStorePath string, fileService portainer.FileService) (datastore.Store, error) {
