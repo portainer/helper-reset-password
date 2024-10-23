@@ -1,6 +1,6 @@
 module github.com/portainer/helper-reset-password
 
-go 1.22.7
+go 1.23.2
 
 require (
 	github.com/portainer/portainer/api v0.0.0-20230517222107-14fa60f6e6b4
