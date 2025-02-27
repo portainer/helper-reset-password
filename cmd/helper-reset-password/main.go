@@ -8,13 +8,14 @@ import (
 	"os"
 	"path"
 
-	helper_reset_password "github.com/portainer/helper-reset-password"
-	"github.com/portainer/helper-reset-password/password"
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/crypto"
 	"github.com/portainer/portainer/api/database"
 	"github.com/portainer/portainer/api/datastore"
 	"github.com/portainer/portainer/api/filesystem"
+
+	helper_reset_password "github.com/portainer/helper-reset-password"
+	"github.com/portainer/helper-reset-password/password"
 )
 
 func parseCommandLineArguments() (string, string, error) {
@@ -101,9 +102,11 @@ func main() {
 		}
 	}
 
-	// If password is used for docker extension. It won't return an error if passwords are same.
-	if err := cryptoService.CompareHashAndData(user.Password, "K7yJPP5qNK4hf1QsRnfV"); err == nil {
-		log.Fatalf("Database from a Docker Desktop Portainer instance detected - exiting without resetting")
+	if user != nil {
+		// If password is used for docker extension. It won't return an error if passwords are same.
+		if err := cryptoService.CompareHashAndData(user.Password, "K7yJPP5qNK4hf1QsRnfV"); err == nil {
+			log.Fatalf("Database from a Docker Desktop Portainer instance detected - exiting without resetting")
+		}
 	}
 
 	// generate the new password if not given via CLI
