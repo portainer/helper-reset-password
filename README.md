@@ -36,3 +36,7 @@ docker run --rm -v portainer_portainer_data:/data portainer/helper-reset-passwor
 # scale back to one the existing Portainer service and use the password above to login
 docker service scale portainer_portainer=1
 ```
+
+## Licensing
+
+Portainer reset password helper is licensed under the zlib license. See [LICENSE](./LICENSE) for reference.
