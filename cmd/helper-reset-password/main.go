@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path"
@@ -13,6 +12,7 @@ import (
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/crypto"
 	"github.com/portainer/portainer/api/database"
+	userservice "github.com/portainer/portainer/api/dataservices/user"
 	"github.com/portainer/portainer/api/datastore"
 	"github.com/portainer/portainer/api/filesystem"
 )
@@ -30,7 +30,7 @@ func parseCommandLineArguments() (string, string, error) {
 	flag.Parse()
 
 	if password != "" && passwordHash != "" {
-		err = errors.New("You cannot use the 'password' and 'password-hash' arguments at the same time")
+		err = errors.New("you cannot use the 'password' and 'password-hash' arguments at the same time")
 	}
 
 	return password, passwordHash, err
@@ -82,7 +82,7 @@ func main() {
 	}
 
 	// try to find user1
-	user, err := store.User().User(portainer.UserID(1))
+	user, err := store.User().Read(portainer.UserID(1))
 	if err != nil {
 		// if user1 doesn't exist, will create later
 		log.Printf("[WARN] Unable to retrieve user with ID 1, will try to create, err: %s", err)
@@ -97,7 +97,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("Unable to generate random admin user name, err: %s", err)
 			}
-			adminName = fmt.Sprintf("admin-%s", adminName)
+			adminName = "admin-" + adminName
 		}
 	}
 
@@ -133,7 +133,7 @@ func main() {
 	if createAdmin {
 		// create user1 when needed
 		if err := store.GetConnection().CreateObjectWithId(
-			store.User().BucketName(),
+			userservice.BucketName,
 			1,
 			&portainer.User{
 				ID:       1,
@@ -146,9 +146,9 @@ func main() {
 		}
 
 		// try to make sure the bolt db user bucket sequence is > 1, 10 attempts
-		seq := store.GetConnection().GetNextIdentifier(store.User().BucketName())
+		seq := store.GetConnection().GetNextIdentifier(userservice.BucketName)
 		for i := 1; i <= 10 && seq <= 1; i++ {
-			seq = store.GetConnection().GetNextIdentifier(store.User().BucketName())
+			seq = store.GetConnection().GetNextIdentifier(userservice.BucketName)
 		}
 		// if the bucket sequence is still less than 1, exit gracefully. in theory this should not happen.
 		if seq <= 1 {
@@ -160,7 +160,7 @@ func main() {
 		// update user1 with the generated password
 		user.Password = hash
 
-		err = store.User().UpdateUser(user.ID, user)
+		err = store.User().Update(user.ID, user)
 		if err != nil {
 			log.Fatalf("Unable to persist password changes inside the database, err: %s", err)
 		}
@@ -176,12 +176,12 @@ func main() {
 }
 
 func createBoltStore(dataStorePath string, fileService portainer.FileService) (datastore.Store, error) {
-	connection, err := database.NewDatabase("boltdb", dataStorePath, nil)
+	connection, err := database.NewDatabase("boltdb", dataStorePath, nil, false)
 	if err != nil {
 		log.Fatalf("failed creating database connection: %s", err)
 	}
 
-	store := datastore.NewStore(dataStorePath, fileService, connection)
+	store := datastore.NewStore(nil, fileService, connection)
 
 	return *store, nil
 }

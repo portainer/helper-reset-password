@@ -1,0 +1,68 @@
+version: "2"
+linters:
+  default: none
+  enable:
+    - bodyclose
+    - copyloopvar
+    - depguard
+    - errorlint
+    - forbidigo
+    - govet
+    - ineffassign
+    - perfsprint
+    - staticcheck
+    - unused
+    - mirror
+    - durationcheck
+    - errorlint
+    - govet
+    - unconvert
+    - usetesting
+    - zerologlint
+    - testifylint
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: encoding/json
+              desc: use github.com/segmentio/encoding/json
+            - pkg: golang.org/x/exp
+              desc: exp is not allowed
+            - pkg: github.com/portainer/libcrypto
+              desc: use github.com/portainer/portainer/pkg/libcrypto
+            - pkg: github.com/portainer/libhttp
+              desc: use github.com/portainer/portainer/pkg/libhttp
+            - pkg: golang.org/x/crypto
+              desc: golang.org/x/crypto is not allowed because of FIPS mode
+            - pkg: github.com/ProtonMail/go-crypto/openpgp
+              desc: github.com/ProtonMail/go-crypto/openpgp is not allowed because of FIPS mode
+    forbidigo:
+      forbid:
+        - pattern: ^tls\.Config$
+          msg: Use crypto.CreateTLSConfiguration() instead
+        - pattern: ^tls\.Config\.(InsecureSkipVerify|MinVersion|MaxVersion|CipherSuites|CurvePreferences)$
+          msg: Do not set this field directly, use crypto.CreateTLSConfiguration() instead
+        - pattern: ^object\.(Commit|Tag)\.Verify$
+          msg: "Not allowed because of FIPS mode"
+        - pattern: ^(types\.SystemContext\.)?(DockerDaemonInsecureSkipTLSVerify|DockerInsecureSkipTLSVerify|OCIInsecureSkipTLSVerify)$
+          msg: "Not allowed because of FIPS mode"
+      analyze-types: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

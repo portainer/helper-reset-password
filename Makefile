@@ -2,6 +2,7 @@ MAIN=cmd/helper-reset-password/main.go
 BINARY=helper-reset-password
 DOCKER_IMAGE=portainer/helper-reset-password
 ALL_OSVERSIONS.windows := 1809 1909 2004 20H2 ltsc2022
+GOTESTSUM=go run gotest.tools/gotestsum@latest
 
 release-linux-amd64: build-linux-amd64 image-linux-amd64
 release-linux-arm: build-linux-arm image-linux-arm
@@ -66,3 +67,9 @@ manifest:
 	done
 
 	docker manifest push $(DOCKER_IMAGE):latest
+
+lint:
+	golangci-lint run --timeout=10m -c .golangci.yaml
+
+test:
+	$(GOTESTSUM) --format pkgname-and-test-fails --format-hide-empty-pkg --hide-summary skipped -- -cover -covermode=atomic -coverprofile=coverage.out ./...
