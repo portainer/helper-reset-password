@@ -37,6 +37,33 @@ docker run --rm -v portainer_portainer_data:/data portainer/helper-reset-passwor
 docker service scale portainer_portainer=1
 ```
 
+## Command line arguments
+
+The helper accepts the following optional command line arguments:
+
+- `--password` string  
+  The new admin password to set. If omitted, the helper will generate a secure random password and print it to stdout.
+
+- `--password-hash` string  
+  A pre-computed password hash to set for the admin user (the helper will not re-hash this value). This is useful when you already have a bcrypt/hash value to apply.
+
+- `--data-path` string  
+  The path to the Portainer data store inside the container. Defaults to `/data`. Use this to point to a different mount or directory if needed.
+
+Notes:
+- `--password` and `--password-hash` are mutually exclusive; do not provide both at the same time.
+
+### Examples:
+
+#### run and let the helper generate a password
+```docker run --rm -v portainer_data:/data portainer/helper-reset-password```
+
+#### set a specific password
+```docker run --rm -v portainer_data:/data portainer/helper-reset-password --password "MyNewP@ssw0rd"```
+
+#### set a precomputed password hash
+```docker run --rm -v portainer_data:/data portainer/helper-reset-password --password-hash "$2y$..."```
+
 ## Licensing
 
 Portainer reset password helper is licensed under the zlib license. See [LICENSE](./LICENSE) for reference.

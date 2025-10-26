@@ -7,6 +7,7 @@ replace github.com/portainer/portainer => ../../../package/server-ce
 require (
 	github.com/portainer/portainer v0.6.1-0.20250108192604-24fdb1f60020
 	github.com/sethvargo/go-password v0.1.3
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
@@ -79,6 +80,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rs/zerolog v1.29.0 // indirect
 	github.com/segmentio/asm v1.1.3 // indirect
 	github.com/segmentio/encoding v0.3.6 // indirect

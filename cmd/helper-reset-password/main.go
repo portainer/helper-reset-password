@@ -1,13 +1,11 @@
 package main
 
 import (
-	"errors"
-	"flag"
 	"log"
 	"os"
 	"path"
 
-	helper_reset_password "github.com/portainer/helper-reset-password"
+	"github.com/portainer/helper-reset-password/cmdline"
 	"github.com/portainer/helper-reset-password/password"
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/crypto"
@@ -17,43 +15,24 @@ import (
 	"github.com/portainer/portainer/api/filesystem"
 )
 
-func parseCommandLineArguments() (string, string, error) {
-	var (
-		password     string
-		passwordHash string
-		err          error
-	)
-
-	flag.StringVar(&password, "password", "", "The new admin password")
-	flag.StringVar(&passwordHash, "password-hash", "", "The new admin password hash")
-
-	flag.Parse()
-
-	if password != "" && passwordHash != "" {
-		err = errors.New("you cannot use the 'password' and 'password-hash' arguments at the same time")
-	}
-
-	return password, passwordHash, err
-}
-
 func main() {
-	// parse CLI arguments
-	cliPassword, cliPasswordHash, err := parseCommandLineArguments()
+
+	cliArgs, err := cmdline.ParseArguments()
 	if err != nil {
 		log.Fatalf("Invalid CLI usage! err: %s", err)
 	}
 	// try to locate the db file
-	if _, err := os.Stat(path.Join(helper_reset_password.DataStorePath, "portainer.db")); err != nil {
+	if _, err := os.Stat(path.Join(cliArgs.DataPath, "portainer.db")); err != nil {
 		if os.IsNotExist(err) {
-			log.Fatalln("Unable to locate /data/portainer.db on disk")
+			log.Fatalf("Unable to locate %s/portainer.db on disk", cliArgs.DataPath)
 		}
 		log.Fatalf("Unable to verify database file existence, err: %s", err)
 	}
 
 	// db init bolt store from the db file
 	// note: encrypted db isn't supported ATM
-	fileService := initFileService(helper_reset_password.DataStorePath)
-	store, err := createBoltStore(helper_reset_password.DataStorePath, fileService)
+	fileService := initFileService(cliArgs.DataPath)
+	store, err := createBoltStore(cliArgs.DataPath, fileService)
 	if err != nil {
 		log.Fatalf("Unable to create boltdb store, err: %v", err)
 	}
@@ -62,7 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to open the database, err: %v", err)
 	} else if isNew {
-		log.Fatalf("Data store not found at %s", helper_reset_password.DataStorePath)
+		log.Fatalf("Data store not found at %s", cliArgs.DataPath)
 	}
 	defer store.Close()
 
@@ -108,26 +87,26 @@ func main() {
 
 	// generate the new password if not given via CLI
 	var newPassword string
-	if cliPassword == "" {
+	if cliArgs.Password == "" {
 		newPassword, err = password.GeneratePlainTextPassword()
 		if err != nil {
 			log.Fatalf("An error occurred during password generation, err: %s", err)
 		}
 	} else {
 		log.Printf("Using password provided via CLI")
-		newPassword = cliPassword
+		newPassword = cliArgs.Password
 	}
 
 	// hash the password if not given via CLI
 	var hash string
-	if cliPasswordHash == "" {
+	if cliArgs.PasswordHash == "" {
 		hash, err = cryptoService.Hash(newPassword)
 		if err != nil {
 			log.Fatalf("Unable to hash password, err: %s", err)
 		}
 	} else {
 		log.Printf("Using password hash provided via CLI")
-		hash = cliPasswordHash
+		hash = cliArgs.PasswordHash
 	}
 
 	if createAdmin {
@@ -168,7 +147,7 @@ func main() {
 		log.Printf("Password successfully updated for user: %s", user.Username)
 	}
 
-	if cliPasswordHash == "" {
+	if cliArgs.PasswordHash == "" {
 		log.Printf("Use the following password to login: %s", newPassword)
 	} else {
 		log.Printf("Use the password from your provided hash to login")
