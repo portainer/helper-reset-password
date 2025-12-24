@@ -83,7 +83,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rs/zerolog v1.29.0 // indirect
 	github.com/segmentio/asm v1.1.3 // indirect
-	github.com/segmentio/encoding v0.3.6 // indirect
+	github.com/segmentio/encoding v0.5.3 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.0 // indirect
