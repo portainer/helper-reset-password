@@ -20,6 +20,7 @@ linters:
     - usetesting
     - zerologlint
     - testifylint
+    - modernize
   settings:
     depguard:
       rules:
