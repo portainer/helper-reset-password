@@ -21,6 +21,7 @@ linters:
     - zerologlint
     - testifylint
     - modernize
+    - unconvert
   settings:
     depguard:
       rules:
