@@ -22,6 +22,9 @@ linters:
     - testifylint
     - modernize
     - unconvert
+    - unused
+    - zerologlint
+    - exptostd
   settings:
     depguard:
       rules:
