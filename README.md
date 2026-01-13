@@ -64,6 +64,10 @@ Notes:
 #### set a precomputed password hash
 ```docker run --rm -v portainer_data:/data portainer/helper-reset-password --password-hash "$2y$..."```
 
+## Security
+
+For information about reporting security vulnerabilities, please see our [Security Policy](SECURITY.md).
+
 ## Licensing
 
 Portainer reset password helper is licensed under the zlib license. See [LICENSE](./LICENSE) for reference.
