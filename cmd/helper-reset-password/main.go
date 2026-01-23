@@ -43,7 +43,11 @@ func main() {
 	} else if isNew {
 		log.Fatalf("Data store not found at %s", cliArgs.DataPath)
 	}
-	defer store.Close()
+	defer func() {
+		if err := store.Close(); err != nil {
+			log.Printf("Failed closing the data store: %v", err)
+		}
+	}()
 
 	cryptoService := crypto.Service{}
 
