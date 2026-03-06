@@ -28,7 +28,7 @@ require (
 	github.com/aws/smithy-go v1.20.3 // indirect
 	github.com/bits-and-blooms/bitset v1.12.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/docker/cli v28.5.1+incompatible // indirect
