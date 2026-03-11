@@ -21,7 +21,11 @@ The Portainer team takes the security of our products seriously. If you believe 
 
 ### Disclosure Process
 
-1. **Report**: Email your findings to security@portainer.io.
+1. **Report**: You can report in one of two ways:
+
+    - **GitHub**: Use the **Report a vulnerability** button on the **Security** tab of this repository.
+
+    - **Email**: Send your findings to security@portainer.io.
 
 2. **Details**: To help us verify the issue, please include:
 
