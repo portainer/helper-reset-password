@@ -1,6 +1,6 @@
 module github.com/portainer/helper-reset-password
 
-go 1.25.7
+go 1.25.8
 
 replace github.com/portainer/portainer => ../../../package/server-ce
 
