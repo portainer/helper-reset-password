@@ -12,6 +12,7 @@ import (
 )
 
 func TestParseArguments(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		args    []string

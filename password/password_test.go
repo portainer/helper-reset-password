@@ -14,6 +14,7 @@ const (
 )
 
 func TestGeneratePlainTextPassword(t *testing.T) {
+	t.Parallel()
 	t.Run("returns no error", func(t *testing.T) {
 		_, err := GeneratePlainTextPassword()
 		require.NoError(t, err)
@@ -70,6 +71,7 @@ func TestGeneratePlainTextPassword(t *testing.T) {
 }
 
 func TestGenerateRandomString(t *testing.T) {
+	t.Parallel()
 	t.Run("returns no error", func(t *testing.T) {
 		_, err := GenerateRandomString()
 		require.NoError(t, err)
