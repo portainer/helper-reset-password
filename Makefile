@@ -98,7 +98,7 @@ manifest:
 	docker manifest push $(DOCKER_IMAGE):latest
 
 lint:
-	golangci-lint run --timeout=10m -c .golangci.yaml
+	golangci-lint run --timeout=10m --new-from-rev=HEAD~ -c .golangci.yaml
 
 test:
 	$(GOTESTSUM) --format pkgname-and-test-fails --format-hide-empty-pkg --hide-summary skipped -- -cover -covermode=atomic -coverprofile=coverage.out ./...
